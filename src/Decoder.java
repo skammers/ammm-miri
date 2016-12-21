@@ -3,8 +3,28 @@ import java.util.ArrayList;
 public class Decoder {
 
 	public Population calculateFitnessNumbers(Population population) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		for(Chromosome chromosome: population.getChromosomes()){
+			calculateAndSetFitness(chromosome);
+		}
+		
+		return population;
+	}
+
+	private void calculateAndSetFitness(Chromosome chromosome) {
+		
+		double fitness = 1; 
+		
+		String[] chromosomeStructure = chromosome.getIdString().split("0");
+		
+		double countOfVehicles = chromosomeStructure[1].length();
+		
+		//todo: fix fitness function
+		fitness = fitness - countOfVehicles/10;
+		
+		//updates fitness for this chromosome
+		chromosome.setFitness(fitness);
+		
 	}
 
 	/**
@@ -25,13 +45,20 @@ public class Decoder {
 			population.add(chromosome, populationSize);
 		}
 		
-		population.sort();
-		population.classify(eliteSize);
-		
 		return population;
 	}
 
 	private Chromosome createNewChromosome(int numberOfGenesInChromosome, ArrayList<Location> locations) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ArrayList<Chromosome> generateMutants(int mutantSize) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ArrayList<Chromosome> generateCrossovers() {
 		// TODO Auto-generated method stub
 		return null;
 	}

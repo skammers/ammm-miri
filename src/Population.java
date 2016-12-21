@@ -3,28 +3,43 @@ import java.util.ArrayList;
 public class Population {
 	
 	private ArrayList<Chromosome> eliteSet;
+	private ArrayList<Chromosome> nonEliteSet;
+	public ArrayList<Chromosome> getNonEliteSet() {
+		return nonEliteSet;
+	}
+
+	public void setNonEliteSet(ArrayList<Chromosome> nonEliteSet) {
+		this.nonEliteSet = nonEliteSet;
+	}
+
 	private ArrayList<Chromosome> mutantSet;
 	private ArrayList<Chromosome> chromosomes;
 	
 
 	public Chromosome getBestChromosome() {
-		Chromosome chromosome = null;
-		this.sort();
-		
-		chromosome = chromosomes.get(0);
-		
-		return chromosome;
+		return chromosomes.get(0);
 	}
 
-	public void sort() {
-		// TODO Auto-generated method stub
-		
+	public ArrayList<Chromosome> getMutantSet() {
+		return mutantSet;
 	}
 
-	public void classify(int eliteSize) {
-		// TODO Auto-generated method stub
-		
+	public void setMutantSet(ArrayList<Chromosome> mutantSet) {
+		this.mutantSet = mutantSet;
 	}
+
+	public ArrayList<Chromosome> getChromosomes() {
+		return chromosomes;
+	}
+
+	public void setChromosomes(ArrayList<Chromosome> chromosomes) {
+		this.chromosomes = chromosomes;
+	}
+
+	public void setEliteSet(ArrayList<Chromosome> eliteSet) {
+		this.eliteSet = eliteSet;
+	}
+
 
 	/**
 	 * reset population
@@ -66,6 +81,14 @@ public class Population {
 			chromosomes.add(chromosome);
 		}
 		
+	}
+
+	/**
+	 * add non elite chromosome
+	 * @param chromosome
+	 */
+	public void addNonElite(Chromosome chromosome) {
+			this.eliteSet.add(chromosome);
 	}
 
 }

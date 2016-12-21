@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class BRKGA {
 	
@@ -11,6 +13,7 @@ public class BRKGA {
 	private int mutantSize; //amount of mutants initialized in each generation
 	private double eliteProb; //probability that a child inherits genes from the elite parent
 	private double lowestAcceptableStopValue = 0.90; 
+	private Chromosome bestChromosome;
 	
 	//locations test data
 	private ArrayList<Location> locations;
@@ -50,23 +53,22 @@ public class BRKGA {
 		current = new Population();
 		previous = new Population();
 		
+		bestChromosome = new Chromosome();
+		
 		//generate first generation
 		current = decoder.generateRandomPopulation(populationSize, numberOfGenesInChromosome, locations, eliteSize);
-		currentGeneration++;
 		
 		//get fitness numbers for every chromosome in the population
 		current = decoder.calculateFitnessNumbers(current);
 		
-		Chromosome bestChromosome = current.getBestChromosome();
+		sortClasifyFindBestIncrease();
+		
+		
+
 		
 		//run until we are satisfied or generation max counter is reached
 		while(bestChromosome.getFitness() < lowestAcceptableStopValue && currentGeneration != maxGenerations){
-			
-			//sort solutions by their cost
-			current.sort();
-			
-			//classify solutions as elite or non-elite
-			current.classify(eliteSize);
+
 			
 			//set previous as current
 			previous = current; 
@@ -80,34 +82,82 @@ public class BRKGA {
 			}
 			
 			//Generate and add mutants to the new generation
-			current = generateMutants(mutantSize);
+			for(Chromosome chromosome: decoder.generateMutants(mutantSize)){
+				current.add(chromosome, populationSize);
+			}
 			
 			//crossover elite and non-elite chromosomes and add children to next generation
-			current = generateCrossovers();
+			for(Chromosome chromosome: decoder.generateCrossovers()){
+				current.add(chromosome, populationSize);
+			}
 			
 			//calculate new fitness numbers
 			current = decoder.calculateFitnessNumbers(current);
 			
-			//increase generation counter
-			bestChromosome = current.getBestChromosome();
-			currentGeneration++;
-			
-			
-			
+			sortClasifyFindBestIncrease();
 		}
 		
 		System.out.println("Simulations are done, dawg");		
 	}
 
-	private Population generateCrossovers() {
-		// TODO Auto-generated method stub
-		return null;
+	private void sortClasifyFindBestIncrease() {
+		//sort solutions by their cost
+		sort();
+		//classify solutions as elite or non-elite
+		classify(eliteSize);
+		//Get the best chromosome
+		bestChromosome = current.getBestChromosome();
+		currentGeneration++;
 		
 	}
 
-	private Population generateMutants(int mutantSize2) {
-		// TODO Auto-generated method stub
-		return null;
+	private void classify(int eliteSize) {
+		
+		current.getEliteSet().clear();
+		current.getNonEliteSet().clear();
+		
+		//add to elite set
+		for(int i = 0; i<eliteSize; i++){
+			current.addElite(current.getChromosomes().get(i), eliteSize);
+		}
+		
+		//add rest to the non-elite set
+		for(Chromosome chromosome: current.getChromosomes()){
+			if(!current.getEliteSet().contains(chromosome)){
+				current.addNonElite(chromosome);
+			}
+		}
+		
+	}
+
+	/**
+	 * Sort chromosomes after best fitness function
+	 */
+	private void sort() {
+		Collections.sort(this.current.getChromosomes(), new Comparator<Chromosome>() {
+
+			@Override
+			public int compare(Chromosome c1, Chromosome c2) {
+				
+				double c1Fitness = c1.getFitness();
+				double c2Fitness = c2.getFitness();
+				
+				int returnValue;
+				
+				if(c1Fitness > c2Fitness){
+					returnValue = 1;
+				}
+				else if(c1Fitness < c2Fitness){
+					returnValue = -1;
+				}
+				else{
+					returnValue = 0;
+				}
+				
+				return returnValue;
+			}
+		});
+		
 	}
 
 	public int getMaxGenerations() {

@@ -14,6 +14,18 @@ public class Location {
 	
  
 
+	public int getId() {
+		return id;
+	}
+
+
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+
+
 	public int getMinValue() {
 		return minValue;
 	}
