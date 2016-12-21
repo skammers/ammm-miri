@@ -1,9 +1,15 @@
 
 public class Chromosome {
+	
+	private double fitness;
 
 	public double getFitness() {
-		// TODO Auto-generated method stub
-		return 0;
+		return fitness;
 	}
+
+	public void setFitness(double fitness) {
+		this.fitness = fitness;
+	}
+
 
 }
