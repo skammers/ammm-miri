@@ -2,65 +2,67 @@ import java.util.ArrayList;
 
 public class Decoder {
 
-	public Population calculateFitnessNumbers(Population population) {
+	public Population decodeKeys(Population current) {
 		
-		for(Chromosome chromosome: population.getChromosomes()){
-			calculateAndSetFitness(chromosome);
+		for(Chromosome chromosome: current.getChromosomes()){
+			chromosome.setFitness(calculateFitness(chromosome));
 		}
 		
-		return population;
-	}
-
-	private void calculateAndSetFitness(Chromosome chromosome) {
-		
-		double fitness = 1; 
-		
-		String[] chromosomeStructure = chromosome.getIdString().split("0");
-		
-		double countOfVehicles = chromosomeStructure[1].length();
-		
-		//todo: fix fitness function
-		fitness = fitness - countOfVehicles/10;
-		
-		//updates fitness for this chromosome
-		chromosome.setFitness(fitness);
+		return current;
 		
 	}
 
-	/**
-	 * Generate a random population from scratch
-	 * @param populationSize
-	 * @param numberOfGenesInChromosome
-	 * @param locations 
-	 * @param eliteSize 
-	 * @return
-	 */
-	public Population generateRandomPopulation(int populationSize, int numberOfGenesInChromosome, ArrayList<Location> locations, int eliteSize) {
+
+	private double calculateFitness(Chromosome chromosome) {
+	
+		double fitness = 1;
 		
-		Population population = new Population();
+		fitness = fitness - chromosome.getVehiclePart().length()/10;
+		//todo - fix fitness function
 		
-		//Generate a random solution
-		for(int i = 0; i < populationSize; i++){
-			Chromosome chromosome = createNewChromosome(numberOfGenesInChromosome, locations);
-			population.add(chromosome, populationSize);
+		return fitness;
+	}
+
+
+	public String generateChromosomeStructure(ArrayList<Node> nodes) {
+		
+		String structure = "";
+		
+		structure += genereateNodePart(nodes);
+		String nodePart = structure;
+		structure += "0";
+		structure += generateVehiclePart(nodePart);
+		
+		//todo - remove test data
+		structure = "1234567890243";
+		
+		
+		
+		return structure;
+	}
+
+
+	public String generateVehiclePart(String structure) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	private String genereateNodePart(ArrayList<Node> nodes) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	public boolean isFeasibleChromosome(String crossMember) {
+		// TODO Auto-generated method stub
+		
+		//Empty string
+		if(crossMember.isEmpty()){
+			return false;
 		}
 		
-		return population;
+		return false;
 	}
-
-	private Chromosome createNewChromosome(int numberOfGenesInChromosome, ArrayList<Location> locations) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public ArrayList<Chromosome> generateMutants(int mutantSize) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public ArrayList<Chromosome> generateCrossovers() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	
 }

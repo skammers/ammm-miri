@@ -1,11 +1,11 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class main {
+public class Main {
 
 	public static void main(String[] args) {
 		
-		ArrayList<Location> locations = new ArrayList<>();
+		ArrayList<Node> nodes = new ArrayList<>();
 		
 		ArrayList<Integer> minValues = new ArrayList<>();
 		ArrayList<Integer> maxValues = new ArrayList<>();
@@ -46,28 +46,33 @@ public class main {
 		//initialize dist values
 		
 		//Getting 10 locations
+		
 		for(int i = 0; i < 10; i++){
-			Location location = new Location(i);
+			Node node = new Node();
 			
-			//Initalize values for Location
-			location.setMinValue(minValues.get(i));
-			location.setMaxValue(maxValues.get(i));
-			location.setT(tValues.get(i));
-			location.setDistances(dist.get(i));
+			//Initalize values for Node
 			
-			locations.add(location);
+			node.setMinValue(minValues.get(i));
+			node.setMaxValue(maxValues.get(i));
+			node.settValue(tValues.get(i));
+			node.setDistances(dist.get(i));
+			
+			nodes.add(node);
 		}
 		
+		
 		int maxGenerations = 5000; //number of max generations to create
-		int numberOfGenesInChromosome = locations.size(); //amount of locations in each chromosome
+		int numberOfGenesInChromosome = nodes.size(); //amount of locations in each chromosome
 		int populationSize = 10; //amount of elements in a population
 		int eliteSize = 3; //amount of elements in elite set
 		int mutantSize = 3; //amount of mutants initialized in each generation
 		double eliteProb = 0.7; //probability that a child inherits genes from the elite parent
 
 		//Start the simulation
-		BRKGA brkga = new BRKGA(maxGenerations, numberOfGenesInChromosome, populationSize, eliteSize, mutantSize, eliteProb, locations);
+		BRKGA brkga = new BRKGA(maxGenerations, numberOfGenesInChromosome, populationSize, eliteSize, mutantSize, eliteProb, nodes);
 
+		System.out.println(brkga.toString());
+		
 	}
 
 }

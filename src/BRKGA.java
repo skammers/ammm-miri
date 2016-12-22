@@ -1,267 +1,287 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Random;
 
 public class BRKGA {
 	
 	
 	private int maxGenerations; //number of max generations to create
-	private int currentGeneration = 0; //current generation counter
+	private int currentGenerationCounter = 0; //current generation counter
 	private int numberOfGenesInChromosome; //amount of locations in each chromosome
 	private int populationSize; //amount of elements in a population
 	private int eliteSize; //amount of elements in elite set
 	private int mutantSize; //amount of mutants initialized in each generation
 	private double eliteProb; //probability that a child inherits genes from the elite parent
-	private double lowestAcceptableStopValue = 0.90; 
-	private Chromosome bestChromosome;
+	private double lowestAcceptableStopValue = 0.9; 
 	
-	//locations test data
-	private ArrayList<Location> locations;
+	private ArrayList<Node> nodes; 
 	
 	private Decoder decoder;
 	
 	private Population previous;
 	private Population current;
 	
-	public BRKGA(int maxGenerations, int numberOfGenesInChromosome, int populationSize, int eliteSize, int mutantSize,
-			double eliteProb, ArrayList<Location> locations) {
+	
+	public BRKGA(int maxGenerations, int numberOfGenesInChromosome, int populationSize,
+			int eliteSize, int mutantSize, double eliteProb, ArrayList<Node> nodes) {
 		super();
-		
-		
-        if (eliteSize > populationSize) {
-            throw new RuntimeException("Elite-set size greater than population size.");
-        }
-        
-        if (mutantSize > populationSize) {
-            throw new RuntimeException("Mutant-set size greater than population size.");
-        }
-        
-        if (eliteProb + mutantSize > populationSize) {
-            throw new RuntimeException("elite + mutant sets greater than population size.");
-        }
-		
 		this.maxGenerations = maxGenerations;
 		this.numberOfGenesInChromosome = numberOfGenesInChromosome;
 		this.populationSize = populationSize;
 		this.eliteSize = eliteSize;
-		this.mutantSize = mutantSize;
 		this.eliteProb = eliteProb;
-		this.locations = locations;
+		this.nodes = nodes;
+		this.mutantSize = mutantSize;
 		
-		//initialize the decoder and populations to use
 		decoder = new Decoder();
+		
 		current = new Population();
-		previous = new Population();
 		
-		bestChromosome = new Chromosome();
-		
-		//generate first generation
-		current = decoder.generateRandomPopulation(populationSize, numberOfGenesInChromosome, locations, eliteSize);
-		
-		//get fitness numbers for every chromosome in the population
-		current = decoder.calculateFitnessNumbers(current);
-		
-		sortClasifyFindBestIncrease();
-		
-		
-
-		
-		//run until we are satisfied or generation max counter is reached
-		while(bestChromosome.getFitness() < lowestAcceptableStopValue && currentGeneration != maxGenerations){
-
+		//Generate P vectors of random keys
+		for(int i = 0; i < populationSize; i++){
+			Chromosome chromosome = generateChromosome();
 			
-			//set previous as current
-			previous = current; 
+			//check that we cannot add more than we should
+			if(current.getChromosomes().size() < populationSize){
+				current.getChromosomes().add(chromosome);
+			}
+		}
+		
+		
+		do{
+			
+			//Decode each vector of random keys
+			current = decoder.decodeKeys(current);
+			
+			//Sort solutions by their cost
+			sort();
+			
+			//Classify solutions as elite or non-elite
+			classify();
+			
+			//store old generation
+			previous = current;
 			
 			//reset current
-			current.reset();
+			reset();
 			
-			//transfer all elite over to new generation
-			for(Chromosome eliteChromosome: previous.getEliteSet()){
-				current.addElite(eliteChromosome, eliteSize);
-			}
+			//Copy elite solutions to next generation
+			copyEliteToNextGeneration();
 			
-			//Generate and add mutants to the new generation
-			for(Chromosome chromosome: decoder.generateMutants(mutantSize)){
-				current.add(chromosome, populationSize);
-			}
+			//Generate mutants in next generation
+			generateMutantsForNextGeneration();
 			
-			//crossover elite and non-elite chromosomes and add children to next generation
-			for(Chromosome chromosome: decoder.generateCrossovers()){
-				current.add(chromosome, populationSize);
-			}
+			//Crossover elite and non-elite solutions and add children to next population
+			doCrossover();
 			
-			//calculate new fitness numbers
-			current = decoder.calculateFitnessNumbers(current);
+			currentGenerationCounter++;
+			System.out.println(currentGenerationCounter);
 			
-			sortClasifyFindBestIncrease();
 		}
-		
-		System.out.println("Simulations are done, dawg");		
+		//Stopping rule satisfied?
+		while(currentGenerationCounter < maxGenerations);		
 	}
 
-	private void sortClasifyFindBestIncrease() {
-		//sort solutions by their cost
-		sort();
-		//classify solutions as elite or non-elite
-		classify(eliteSize);
-		//Get the best chromosome
-		bestChromosome = current.getBestChromosome();
-		currentGeneration++;
-		
-	}
-
-	private void classify(int eliteSize) {
-		
-		current.getEliteSet().clear();
-		current.getNonEliteSet().clear();
-		
-		//add to elite set
-		for(int i = 0; i<eliteSize; i++){
-			current.addElite(current.getChromosomes().get(i), eliteSize);
-		}
-		
-		//add rest to the non-elite set
-		for(Chromosome chromosome: current.getChromosomes()){
-			if(!current.getEliteSet().contains(chromosome)){
-				current.addNonElite(chromosome);
-			}
-		}
-		
-	}
 
 	/**
-	 * Sort chromosomes after best fitness function
+	 * Crossover elite and non-elite chromosomes
+	 */
+	private void doCrossover() {
+		
+		//Continue until we have added enough mutants for next generation
+		while(current.getChromosomes().size() < populationSize){
+			
+			Chromosome eliteMember = selection(current.getElites());
+			Chromosome nonEliteMember = selection(current.getNonElites());
+			
+			Chromosome crossMember = crossChromosomes(eliteMember, nonEliteMember);
+			
+			// Check to see if feasible chromosome
+			if(decoder.isFeasibleChromosome(crossMember.getStructure())){
+				current.getChromosomes().add(crossMember);
+			}
+			
+		}
+		
+		
+		
+		
+	}
+
+
+	private Chromosome crossChromosomes(Chromosome eliteMember, Chromosome nonEliteMember) {
+		
+		Chromosome crossMember = new Chromosome();
+		
+		//todo - fix this
+		String eliteStructure = eliteMember.getNodePart();
+		String nonEliteStructure = nonEliteMember.getNodePart();
+		String crossStructure = "";
+		
+		while(!decoder.isFeasibleChromosome(crossStructure)){
+			
+			
+			//Add elite members to new structure
+			for(char gene: eliteStructure.toCharArray()){
+				
+				Random random = new Random();
+				int r = random.nextInt(100);
+				
+				if(r < eliteProb){
+					crossStructure += gene;
+				}
+			}
+			
+			for(char gene: nonEliteStructure.toCharArray()){
+				
+			}
+			
+			
+		}
+		
+		
+		return crossMember;
+		
+	}
+
+
+	/**
+	 * Return random chromosome from list of chromosomes
+	 * @param chromosomes
+	 * @return
+	 */
+	private Chromosome selection(ArrayList<Chromosome> chromosomes) {
+		
+		Random random = new Random();
+		return chromosomes.get(random.nextInt(chromosomes.size()));
+	}
+
+
+	/**
+	 * Generate mutations for next generation
+	 */
+	private void generateMutantsForNextGeneration() {
+		
+		for(int i = 0; i < mutantSize; i++){
+			Chromosome chromosome = generateChromosome();
+			current.getChromosomes().add(chromosome);
+			current.getMutants().add(chromosome);
+		}
+		
+	}
+
+
+	/**
+	 * Copy elite to next generation
+	 */
+	private void copyEliteToNextGeneration() {
+		
+		for(Chromosome elite: previous.getElites()){
+			current.getChromosomes().add(elite);
+		}	
+	}
+
+
+	/**
+	 * reset chromosomes
+	 */
+	private void reset() {
+		current.getChromosomes().clear();
+		current.getElites().clear();
+		current.getMutants().clear();
+		current.getNonElites().clear();
+	}
+
+
+	/**
+	 * Classify chromosomes
+	 */
+	private void classify() {
+		
+		//Reset elite and non-elite list
+		current.getElites().clear();
+		current.getNonElites().clear();
+		
+		//assign to elite
+		for(int i = 0; i<eliteSize; i++){
+			Chromosome elite = current.getChromosomes().get(i);
+			current.getElites().add(elite);
+		}
+		
+		//assign the rest to non-elite
+		for(int j = 0; j<current.getChromosomes().size(); j++){
+			Chromosome chromosome = current.getChromosomes().get(j);
+			
+			//check if already in elite
+			if(!current.getElites().contains(chromosome)){
+				current.getNonElites().add(chromosome);
+			}
+		}
+	}
+
+
+	/**
+	 * Sort the chromosome list based on fitness
 	 */
 	private void sort() {
-		Collections.sort(this.current.getChromosomes(), new Comparator<Chromosome>() {
+		
+		Collections.sort(current.getChromosomes(), new Comparator<Chromosome>() {
 
 			@Override
-			public int compare(Chromosome c1, Chromosome c2) {
+			public int compare(Chromosome o1, Chromosome o2) {
+				double f1 = o1.getFitness();
+				double f2 = o2.getFitness();
 				
-				double c1Fitness = c1.getFitness();
-				double c2Fitness = c2.getFitness();
-				
-				int returnValue;
-				
-				if(c1Fitness > c2Fitness){
-					returnValue = 1;
+				if(f1 > f2){
+					return 1;
 				}
-				else if(c1Fitness < c2Fitness){
-					returnValue = -1;
-				}
-				else{
-					returnValue = 0;
+				else if(f1 < f2){
+					return -1;
 				}
 				
-				return returnValue;
+				return 0;
 			}
 		});
 		
 	}
 
-	public int getMaxGenerations() {
-		return maxGenerations;
+
+	private Chromosome generateChromosome() {
+		
+		Chromosome chromosome = new Chromosome();
+		
+		//Get structure of a chromosome
+		String structure = decoder.generateChromosomeStructure(nodes);
+		
+		
+		
+		String[] structureSplit = structure.split("0");
+		
+		//Update values for chromosome
+		chromosome.setNodePart(structureSplit[0]);
+		chromosome.setVehiclePart(structureSplit[1]);
+		chromosome.setFitness(0.0);
+		
+		return chromosome;
 	}
 
-	public void setMaxGenerations(int maxGenerations) {
-		this.maxGenerations = maxGenerations;
-	}
 
-	public int getCurrentGeneration() {
-		return currentGeneration;
-	}
-
-	public void setCurrentGeneration(int currentGeneration) {
-		this.currentGeneration = currentGeneration;
-	}
-
-	public int getNumberOfGenesInChromosome() {
-		return numberOfGenesInChromosome;
-	}
-
-	public void setNumberOfGenesInChromosome(int numberOfGenesInChromosome) {
-		this.numberOfGenesInChromosome = numberOfGenesInChromosome;
-	}
-
-	public int getPopulationSize() {
-		return populationSize;
-	}
-
-	public void setPopulationSize(int populationSize) {
-		this.populationSize = populationSize;
-	}
-
-	public int getEliteSize() {
-		return eliteSize;
-	}
-
-	public void setEliteSize(int eliteSize) {
-		this.eliteSize = eliteSize;
-	}
-
-	public int getMutantSize() {
-		return mutantSize;
-	}
-
-	public void setMutantSize(int mutantSize) {
-		this.mutantSize = mutantSize;
-	}
-
-	public double getEliteProb() {
-		return eliteProb;
-	}
-
-	public void setEliteProb(double eliteProb) {
-		this.eliteProb = eliteProb;
-	}
-
-	public double getLowestAcceptableStopValue() {
-		return lowestAcceptableStopValue;
-	}
-
-	public void setLowestAcceptableStopValue(double lowestAcceptableStopValue) {
-		this.lowestAcceptableStopValue = lowestAcceptableStopValue;
-	}
-
-	public ArrayList<Location> getLocations() {
-		return locations;
-	}
-
-	public void setLocations(ArrayList<Location> locations) {
-		this.locations = locations;
-	}
-
-	public Decoder getDecoder() {
-		return decoder;
-	}
-
-	public void setDecoder(Decoder decoder) {
-		this.decoder = decoder;
-	}
-
-	public Population getPrevious() {
-		return previous;
-	}
-
-	public void setPrevious(Population previous) {
-		this.previous = previous;
-	}
-
-	public Population getCurrent() {
-		return current;
-	}
-
-	public void setCurrent(Population current) {
-		this.current = current;
+	@Override
+	public String toString() {
+		
+		//Sort to return the best solution
+		sort();
+		
+		return current.getChromosomes().get(0).toString();
+		
 	}
 	
 	
-	
-	
-	
-	
-	
+
+
+
+
 	
 	
 	
