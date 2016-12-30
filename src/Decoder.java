@@ -1,6 +1,9 @@
 import java.util.ArrayList;
 
 public class Decoder {
+	
+	private int maxMinutesBeforeReturn = 720;
+
 
 	public Population decodeKeys(Population current) {
 		
@@ -33,29 +36,46 @@ public class Decoder {
 		
 		String structure = "";
 		
-		structure += genereateNodePart(nodes);
-		String nodePart = structure;
+		ArrayList<ArrayList<Node>> nodePart = genereateNodePart(nodes);
+		
+		for(ArrayList<Node> nodeList: nodePart){
+			for(Node node: nodeList){
+				structure += node.getId();
+			}
+		}
+		
 		structure += "0";
 		structure += generateVehiclePart(nodePart);
 		
 		//todo - remove test data
 		structure = "1234567890243";
 		
-		
-		
+
 		return structure;
 	}
 
 
-	public String generateVehiclePart(String structure) {
-		// TODO Auto-generated method stub
-		return null;
+	public String generateVehiclePart(ArrayList<ArrayList<Node>> nodePart) {
+		
+		String value = "";
+		
+		for(ArrayList<Node> nodeList: nodePart){
+			value += nodeList.size();
+		}
+		
+		return value;
 	}
 
 
-	private String genereateNodePart(ArrayList<Node> nodes) {
-		// TODO Auto-generated method stub
+	private ArrayList<ArrayList<Node>> genereateNodePart(ArrayList<Node> nodes) {
+		
+		ArrayList<ArrayList<Node>> nodePart = new ArrayList<>();
+		
+		
+		
+		
 		return null;
+	
 	}
 
 

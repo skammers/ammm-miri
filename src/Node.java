@@ -4,9 +4,26 @@ public class Node {
 	
 	private int minValue; 
 	private int maxValue;
-	private int tValue;
+	private int workValue;
 	private ArrayList<Integer> distances;
+	private int id;
 	
+	public int getWorkValue() {
+		return workValue;
+	}
+
+	public void setWorkValue(int workValue) {
+		this.workValue = workValue;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	/**
 	 * Empty constructor
 	 */
@@ -27,10 +44,10 @@ public class Node {
 		this.maxValue = maxValue;
 	}
 	public int gettValue() {
-		return tValue;
+		return workValue;
 	}
 	public void settValue(int tValue) {
-		this.tValue = tValue;
+		this.workValue = tValue;
 	}
 	public ArrayList<Integer> getDistances() {
 		return distances;
@@ -42,10 +59,7 @@ public class Node {
 		super();
 		this.minValue = minValue;
 		this.maxValue = maxValue;
-		this.tValue = tValue;
+		this.workValue = tValue;
 		this.distances = distances;
 	}
-
-//
-
 }

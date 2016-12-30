@@ -51,7 +51,7 @@ public class Main {
 			Node node = new Node();
 			
 			//Initalize values for Node
-			
+			node.setId(i+1);
 			node.setMinValue(minValues.get(i));
 			node.setMaxValue(maxValues.get(i));
 			node.settValue(tValues.get(i));

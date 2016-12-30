@@ -5,15 +5,13 @@ import java.util.Random;
 
 public class BRKGA {
 	
-	
-	private int maxGenerations; //number of max generations to create
 	private int currentGenerationCounter = 0; //current generation counter
-	private int numberOfGenesInChromosome; //amount of locations in each chromosome
-	private int populationSize; //amount of elements in a population
+	public int numberOfGenesInChromosome; //amount of locations in each chromosome
+	public int populationSize; //amount of elements in a population
 	private int eliteSize; //amount of elements in elite set
 	private int mutantSize; //amount of mutants initialized in each generation
 	private double eliteProb; //probability that a child inherits genes from the elite parent
-	private double lowestAcceptableStopValue = 0.75; 
+	//private double lowestAcceptableStopValue = 0.75; 
 	
 	private ArrayList<Node> nodes; 
 	
@@ -26,7 +24,6 @@ public class BRKGA {
 	public BRKGA(int maxGenerations, int numberOfGenesInChromosome, int populationSize,
 			int eliteSize, int mutantSize, double eliteProb, ArrayList<Node> nodes) {
 		super();
-		this.maxGenerations = maxGenerations;
 		this.numberOfGenesInChromosome = numberOfGenesInChromosome;
 		this.populationSize = populationSize;
 		this.eliteSize = eliteSize;
@@ -78,7 +75,6 @@ public class BRKGA {
 			doCrossover();
 			
 			currentGenerationCounter++;
-			System.out.println(currentGenerationCounter);
 			
 		}
 		//Stopping rule satisfied?
@@ -169,7 +165,7 @@ public class BRKGA {
 		}
 		
 		crossMember.setNodePart(crossStructure);
-		crossMember.setVehiclePart(decoder.generateVehiclePart(crossStructure));
+		//crossMember.setVehiclePart(decoder.generateVehiclePart(crossStructure));
 		
 		return crossMember;
 		
