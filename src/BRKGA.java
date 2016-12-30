@@ -13,7 +13,7 @@ public class BRKGA {
 	private int eliteSize; //amount of elements in elite set
 	private int mutantSize; //amount of mutants initialized in each generation
 	private double eliteProb; //probability that a child inherits genes from the elite parent
-	private double lowestAcceptableStopValue = 0.9; 
+	private double lowestAcceptableStopValue = 0.75; 
 	
 	private ArrayList<Node> nodes; 
 	
@@ -37,6 +37,7 @@ public class BRKGA {
 		decoder = new Decoder();
 		
 		current = new Population();
+		previous = new Population();
 		
 		//Generate P vectors of random keys
 		for(int i = 0; i < populationSize; i++){
@@ -61,16 +62,17 @@ public class BRKGA {
 			classify();
 			
 			//store old generation
-			previous = current;
+			storeOldGeneration();
 			
 			//reset current
-			reset();
+			reset(current);
 			
 			//Copy elite solutions to next generation
 			copyEliteToNextGeneration();
 			
 			//Generate mutants in next generation
 			generateMutantsForNextGeneration();
+			
 			
 			//Crossover elite and non-elite solutions and add children to next population
 			doCrossover();
@@ -84,6 +86,28 @@ public class BRKGA {
 	}
 
 
+	private void storeOldGeneration() {
+		
+		reset(previous);
+		
+		//Add all chromosomes
+		for(Chromosome chromosome: current.getChromosomes()){
+			previous.getChromosomes().add(chromosome);
+		}
+		
+		//All all elite
+		for(Chromosome chromosome: current.getElites()){
+			previous.getElites().add(chromosome);
+		}
+		
+		//Add all non elite
+		for(Chromosome chromosome: current.getNonElites()){
+			previous.getNonElites().add(chromosome);
+		}
+		
+	}
+
+
 	/**
 	 * Crossover elite and non-elite chromosomes
 	 */
@@ -92,8 +116,8 @@ public class BRKGA {
 		//Continue until we have added enough mutants for next generation
 		while(current.getChromosomes().size() < populationSize){
 			
-			Chromosome eliteMember = selection(current.getElites());
-			Chromosome nonEliteMember = selection(current.getNonElites());
+			Chromosome eliteMember = selection(previous.getElites());
+			Chromosome nonEliteMember = selection(previous.getNonElites());
 			
 			Chromosome crossMember = crossChromosomes(eliteMember, nonEliteMember);
 			
@@ -128,18 +152,24 @@ public class BRKGA {
 				Random random = new Random();
 				int r = random.nextInt(100);
 				
-				if(r < eliteProb){
+				if(r < eliteProb*100){
 					crossStructure += gene;
 				}
 			}
 			
 			for(char gene: nonEliteStructure.toCharArray()){
 				
+				//Meaning the node is not present
+				if(0 > crossStructure.indexOf((gene))){
+					crossStructure += gene;
+				}
 			}
 			
 			
 		}
 		
+		crossMember.setNodePart(crossStructure);
+		crossMember.setVehiclePart(decoder.generateVehiclePart(crossStructure));
 		
 		return crossMember;
 		
@@ -185,12 +215,13 @@ public class BRKGA {
 
 	/**
 	 * reset chromosomes
+	 * @param population 
 	 */
-	private void reset() {
-		current.getChromosomes().clear();
-		current.getElites().clear();
-		current.getMutants().clear();
-		current.getNonElites().clear();
+	private void reset(Population population) {
+		population.getChromosomes().clear();
+		population.getElites().clear();
+		population.getMutants().clear();
+		population.getNonElites().clear();
 	}
 
 
@@ -234,10 +265,10 @@ public class BRKGA {
 				double f2 = o2.getFitness();
 				
 				if(f1 > f2){
-					return 1;
+					return -1;
 				}
 				else if(f1 < f2){
-					return -1;
+					return 1;
 				}
 				
 				return 0;
@@ -276,14 +307,4 @@ public class BRKGA {
 		return current.getChromosomes().get(0).toString();
 		
 	}
-	
-	
-
-
-
-
-	
-	
-	
-
 }

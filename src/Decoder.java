@@ -14,10 +14,15 @@ public class Decoder {
 
 
 	private double calculateFitness(Chromosome chromosome) {
+		
+		if(chromosome.getVehiclePart() == null){
+			return 0.0;
+		}
 	
 		double fitness = 1;
+		double numberOfCars = chromosome.getVehiclePart().length();
 		
-		fitness = fitness - chromosome.getVehiclePart().length()/10;
+		fitness = fitness - (numberOfCars/10);
 		//todo - fix fitness function
 		
 		return fitness;
@@ -62,7 +67,7 @@ public class Decoder {
 			return false;
 		}
 		
-		return false;
+		return true;
 	}
 	
 }
