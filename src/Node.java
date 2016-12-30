@@ -62,4 +62,12 @@ public class Node {
 		this.workValue = tValue;
 		this.distances = distances;
 	}
+
+	@Override
+	public String toString() {
+		
+		return "ID: " + this.id + " & min value: " + this.minValue; 
+	}
+	
+	
 }

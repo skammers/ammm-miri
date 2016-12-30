@@ -38,7 +38,7 @@ public class BRKGA {
 		
 		//Generate P vectors of random keys
 		for(int i = 0; i < populationSize; i++){
-			Chromosome chromosome = generateChromosome();
+			Chromosome chromosome = decoder.generateSolution(nodes);
 			
 			//check that we cannot add more than we should
 			if(current.getChromosomes().size() < populationSize){
@@ -72,7 +72,7 @@ public class BRKGA {
 			
 			
 			//Crossover elite and non-elite solutions and add children to next population
-			doCrossover();
+			//doCrossover();
 			
 			currentGenerationCounter++;
 			
@@ -107,6 +107,7 @@ public class BRKGA {
 	/**
 	 * Crossover elite and non-elite chromosomes
 	 */
+	/*
 	private void doCrossover() {
 		
 		//Continue until we have added enough mutants for next generation
@@ -128,16 +129,17 @@ public class BRKGA {
 		
 		
 	}
+	*/
 
-
+/*
 	private Chromosome crossChromosomes(Chromosome eliteMember, Chromosome nonEliteMember) {
 		
 		Chromosome crossMember = new Chromosome();
 		
 		//todo - fix this
-		String eliteStructure = eliteMember.getNodePart();
-		String nonEliteStructure = nonEliteMember.getNodePart();
-		String crossStructure = "";
+		ArrayList<Integer> eliteStructure = eliteMember.getNodePart();
+		ArrayList<Integer> nonEliteStructure = nonEliteMember.getNodePart();
+		ArrayList<Integer> crossStructure = "";
 		
 		while(!decoder.isFeasibleChromosome(crossStructure)){
 			
@@ -171,6 +173,7 @@ public class BRKGA {
 		
 	}
 
+ */
 
 	/**
 	 * Return random chromosome from list of chromosomes
@@ -190,7 +193,7 @@ public class BRKGA {
 	private void generateMutantsForNextGeneration() {
 		
 		for(int i = 0; i < mutantSize; i++){
-			Chromosome chromosome = generateChromosome();
+			Chromosome chromosome = decoder.generateSolution(nodes);
 			current.getChromosomes().add(chromosome);
 			current.getMutants().add(chromosome);
 		}
@@ -273,25 +276,6 @@ public class BRKGA {
 		
 	}
 
-
-	private Chromosome generateChromosome() {
-		
-		Chromosome chromosome = new Chromosome();
-		
-		//Get structure of a chromosome
-		String structure = decoder.generateChromosomeStructure(nodes);
-		
-		
-		
-		String[] structureSplit = structure.split("0");
-		
-		//Update values for chromosome
-		chromosome.setNodePart(structureSplit[0]);
-		chromosome.setVehiclePart(structureSplit[1]);
-		chromosome.setFitness(0.0);
-		
-		return chromosome;
-	}
 
 
 	@Override
