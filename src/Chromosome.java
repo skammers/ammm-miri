@@ -45,11 +45,19 @@ public class Chromosome {
 			
 			//Add node id to solution
 			for(Node node: route.getNodesInRoute()){
+				
+				if(node.getId() == 0){
+					continue;
+				}
+				
 				nodeSolution += node.getId() + "";
 			}
 			
+			//nodeSolution += nodeSolution +",";
+			
 			//Add route size to solution
-			vehicleSolution += "" + route.getNodesInRoute().size();
+			int sizeMinusStartNode = route.getNodesInRoute().size()-1;
+			vehicleSolution += "" + sizeMinusStartNode;
 			
 		}
 		
