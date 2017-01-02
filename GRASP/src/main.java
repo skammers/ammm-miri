@@ -63,7 +63,7 @@ public class main {
 			nodes.add(node);
 		}
 		
-		double alpha = 0.5; //threshold
+		double alpha = 1; //threshold
 		
 		GRASP grasp = new GRASP(nodes, alpha);
 		

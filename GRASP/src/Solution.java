@@ -67,4 +67,17 @@ public class Solution {
 		return totalNodes;
 	}
 
+	public int getLatestArrivalTime(){
+		
+		int latestArrival = 0;
+		
+		for(Route route: this.getRoutes()){
+			if(route.getTotTime() > latestArrival){
+				latestArrival = route.getTotTime();
+			}
+		}
+		
+		return latestArrival;
+	}
+	
 }
