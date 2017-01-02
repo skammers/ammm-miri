@@ -37,7 +37,6 @@ public class Decoder {
 		double timeValue = (latestArrivalTime/maxMinutesBeforeReturn);
 		
 		fitness = fitness - (numberOfCars/10) - (timeValue/10);
-		//System.out.println(fitness);
 		
 		return fitness;
 	}
@@ -45,25 +44,6 @@ public class Decoder {
 	@SuppressWarnings("unchecked")
 	public Chromosome generateSolution(ArrayList<Node> nodes){
 		Chromosome chromosome = new Chromosome();
-		
-		//Sort nodes based on min value
-		/*
-		nodes.sort(new Comparator<Node>() {
-
-			@Override
-			public int compare(Node node1, Node node2) {
-				
-				if(node1.getMinValue() > node2.getMinValue()){
-					return 1;
-				}
-				else if(node1.getMinValue() < node2.getMinValue()){
-					return -1;
-				}
-				
-				return 0;
-			}
-		});
-		*/
 		
 		ArrayList<Node> nodesNotUsed = new ArrayList<>();
 		nodesNotUsed = (ArrayList<Node>) nodes.clone();
@@ -93,6 +73,18 @@ public class Decoder {
 		for(Node node: listMinusStart){
 			nodesNotUsed.add(node);
 		}
+		
+		
+		
+		chromosome = genereateChromosome(nodesNotUsed);
+		return chromosome;
+		
+		
+	}
+
+
+	public Chromosome genereateChromosome(ArrayList<Node> nodesNotUsed) {
+		Chromosome chromosome = new Chromosome();
 		
 		//Run until all nodes is used except for start node
 		while(nodesNotUsed.size() -1 != 0){
@@ -158,15 +150,8 @@ public class Decoder {
 		}
 		
 		return chromosome;
-		
-		
 	}
 
-
-	public boolean checkIfFeasibleSolution(Chromosome crossMember) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	
 }

@@ -64,7 +64,7 @@ public class Main {
 		}
 		
 		
-		int maxGenerations = 50000; //number of max generations to create
+		int maxGenerations = 5000; //number of max generations to create
 		int numberOfGenesInChromosome = nodes.size(); //amount of locations in each chromosome
 		int populationSize = 10; //amount of elements in a population
 		int eliteSize = 3; //amount of elements in elite set

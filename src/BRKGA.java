@@ -1,7 +1,11 @@
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Random;
 
 public class BRKGA {
@@ -61,7 +65,7 @@ public class BRKGA {
 			
 			//store old generation
 			storeOldGeneration();
-			
+						
 			//reset current
 			reset(current);
 			
@@ -109,20 +113,34 @@ public class BRKGA {
 	/**
 	 * Crossover elite and non-elite chromosomes
 	 */
-	
 	private void doCrossover() {
 		
 		//Continue until we have added enough mutants for next generation
+		
+		
 		while(current.getChromosomes().size() < populationSize){
 			
 			Chromosome eliteMember = selection(previous.getElites());
 			Chromosome nonEliteMember = selection(previous.getNonElites());
 			
+			//Get new chromosome 
 			Chromosome crossMember = crossChromosomes(eliteMember, nonEliteMember);
 			
-			if(decoder.checkIfFeasibleSolution(crossMember)){
-				current.getChromosomes().add(crossMember);
+			//generate solution based on new routes
+			ArrayList<Node> nodesNotUsed = new ArrayList<>();
+			nodesNotUsed.add(crossMember.getVehiclePart().get(0).getNodesInRoute().get(0));
+			
+			for(Route route: crossMember.getVehiclePart()){
+				for(Node node: route.getNodesInRoute()){
+					
+					if(node.getId() != 0){
+						nodesNotUsed.add(node);
+					}
+				}
 			}
+			
+			crossMember = decoder.genereateChromosome(nodesNotUsed);
+			current.getChromosomes().add(crossMember);
 			
 		}
 	}
@@ -141,12 +159,19 @@ public class BRKGA {
 		
 		ArrayList<Route> newRouteCombination = new ArrayList<>();
 		
+		//Add start node
 		ArrayList<Node> unusedNodes = new ArrayList<>();
+		unusedNodes.add(eliteMember.getVehiclePart().get(0).getNodesInRoute().get(0));
 		
 		//Add all nodes 
 		for(Route route: eliteMember.getVehiclePart()){
 			for(Node node: route.getNodesInRoute()){
+				
+				if(node.getId() == 0){
+					continue;
+				}
 				unusedNodes.add(node);
+				
 			}
 		}
 		
@@ -177,6 +202,8 @@ public class BRKGA {
 		}
 
 		newRouteCombination.add(route);
+		
+		crossMember.setVehiclePart(newRouteCombination);
 		
 		return crossMember;
 	}
@@ -283,6 +310,18 @@ public class BRKGA {
 		});
 		
 	}
+	
+	private String getArrivalTime(int arrivalTime) throws ParseException{
+		 String myTime = "08:00";
+		 SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+		 Date d = df.parse(myTime); 
+		 Calendar cal = Calendar.getInstance();
+		 cal.setTime(d);
+		 cal.add(Calendar.MINUTE, arrivalTime);
+		 String newTime = df.format(cal.getTime());
+		 
+		 return newTime;
+	}
 
 
 
@@ -302,8 +341,13 @@ public class BRKGA {
 		DecimalFormat df = new DecimalFormat("#.00000");
 		
 		String solution = "The best found solution for BRKGA for " + nodes.size() + " locations: \n";
-		solution+= "Number of routes: " + vehiclePart.size() + ", Fitness: " + df.format(bestChromosome.getFitness()) + "\n";
-		solution += "Arrival time of latest car: " + bestChromosome.getLatestArrivalTime() + "\n";
+		solution+= "Number of routes: " + vehiclePart.size() + ", Fitness: 0"  + df.format(bestChromosome.getFitness()) + "\n";
+		try {
+			solution += "Arrival time of latest car: " + getArrivalTime(bestChromosome.getLatestArrivalTime()) + "\n";
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		for(int i = 0; i<vehiclePart.size(); i++){
 			solution += "Route nr: " + (i+1) + " covers the following locations: \n";
 			Route route = vehiclePart.get(i);
