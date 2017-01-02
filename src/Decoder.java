@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 public class Decoder {
 	
@@ -27,8 +26,18 @@ public class Decoder {
 		double fitness = 1;
 		double numberOfCars = chromosome.getVehiclePart().size();
 		
-		fitness = fitness - (numberOfCars/10);
-		//todo - fix fitness function
+		double latestArrivalTime = 0;
+		
+		for(Route route : chromosome.getVehiclePart()){
+			if(route.getTotTime() > latestArrivalTime){
+				latestArrivalTime = route.getTotTime();
+			}
+		}
+		
+		double timeValue = (latestArrivalTime/maxMinutesBeforeReturn);
+		
+		fitness = fitness - (numberOfCars/10) - (timeValue/10);
+		//System.out.println(fitness);
 		
 		return fitness;
 	}
@@ -95,7 +104,7 @@ public class Decoder {
 			int timeFromLastNodeToHome = 0;
 			
 			
-			System.out.println("Route nr: " + (chromosome.getVehiclePart().size() + 1));
+			//System.out.println("Route nr: " + (chromosome.getVehiclePart().size() + 1));
 			
 			ArrayList<Node> nodesUsed = new ArrayList<>();
 			
@@ -128,7 +137,7 @@ public class Decoder {
 					//Add node to route
 					route.getNodesInRoute().add(node);
 					
-					System.out.println("Node " + node.getId());
+					//System.out.println("Node " + node.getId());
 					
 					route.setTotTime(route.getTotTime() + nodeTime);
 					
@@ -151,6 +160,12 @@ public class Decoder {
 		return chromosome;
 		
 		
+	}
+
+
+	public boolean checkIfFeasibleSolution(Chromosome crossMember) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	

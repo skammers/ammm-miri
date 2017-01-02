@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,7 +12,7 @@ public class BRKGA {
 	private int eliteSize; //amount of elements in elite set
 	private int mutantSize; //amount of mutants initialized in each generation
 	private double eliteProb; //probability that a child inherits genes from the elite parent
-	//private double lowestAcceptableStopValue = 0.75; 
+	//private double lowestAcceptableStopValue = 0.65; 
 	
 	private ArrayList<Node> nodes; 
 	
@@ -72,14 +73,15 @@ public class BRKGA {
 			
 			
 			//Crossover elite and non-elite solutions and add children to next population
-			//doCrossover();
+			doCrossover();
 			
 			currentGenerationCounter++;
 			
 		}
 		//Stopping rule satisfied?
 		while(currentGenerationCounter < maxGenerations);		
-	}
+		//while(current.getChromosomes().get(0).getFitness() < lowestAcceptableStopValue);
+	}	
 
 
 	private void storeOldGeneration() {
@@ -107,7 +109,7 @@ public class BRKGA {
 	/**
 	 * Crossover elite and non-elite chromosomes
 	 */
-	/*
+	
 	private void doCrossover() {
 		
 		//Continue until we have added enough mutants for next generation
@@ -118,62 +120,68 @@ public class BRKGA {
 			
 			Chromosome crossMember = crossChromosomes(eliteMember, nonEliteMember);
 			
-			// Check to see if feasible chromosome
-			if(decoder.isFeasibleChromosome(crossMember.getStructure())){
+			if(decoder.checkIfFeasibleSolution(crossMember)){
 				current.getChromosomes().add(crossMember);
 			}
 			
 		}
-		
-		
-		
-		
 	}
-	*/
+	
 
-/*
+
+	/**
+	 * Do the actual crossing
+	 * @param eliteMember
+	 * @param nonEliteMember
+	 * @return
+	 */
 	private Chromosome crossChromosomes(Chromosome eliteMember, Chromosome nonEliteMember) {
 		
 		Chromosome crossMember = new Chromosome();
 		
-		//todo - fix this
-		ArrayList<Integer> eliteStructure = eliteMember.getNodePart();
-		ArrayList<Integer> nonEliteStructure = nonEliteMember.getNodePart();
-		ArrayList<Integer> crossStructure = "";
+		ArrayList<Route> newRouteCombination = new ArrayList<>();
 		
-		while(!decoder.isFeasibleChromosome(crossStructure)){
-			
-			
-			//Add elite members to new structure
-			for(char gene: eliteStructure.toCharArray()){
-				
-				Random random = new Random();
-				int r = random.nextInt(100);
-				
-				if(r < eliteProb*100){
-					crossStructure += gene;
-				}
+		ArrayList<Node> unusedNodes = new ArrayList<>();
+		
+		//Add all nodes 
+		for(Route route: eliteMember.getVehiclePart()){
+			for(Node node: route.getNodesInRoute()){
+				unusedNodes.add(node);
 			}
-			
-			for(char gene: nonEliteStructure.toCharArray()){
-				
-				//Meaning the node is not present
-				if(0 > crossStructure.indexOf((gene))){
-					crossStructure += gene;
-				}
-			}
-			
-			
 		}
 		
-		crossMember.setNodePart(crossStructure);
-		//crossMember.setVehiclePart(decoder.generateVehiclePart(crossStructure));
+		//Get routes from elite by probability eliteProb
+		for(Route route: eliteMember.getVehiclePart()){
+			Random r = new Random();
+			double threshold = r.nextDouble()*1;
+			
+			//add elite route to new routes
+			if(threshold < eliteProb){
+				newRouteCombination.add(route);
+				
+				for(Node node: route.getNodesInRoute()){
+					unusedNodes.remove(node);
+				}
+			}
+		}
+		
+		Route route = new Route();
+		
+		for(Route r: nonEliteMember.getVehiclePart()){
+			for(Node node: r.getNodesInRoute()){
+				if(unusedNodes.contains(node)){
+					route.getNodesInRoute().add(node);
+					unusedNodes.remove(node);
+				}
+			}
+		}
+
+		newRouteCombination.add(route);
 		
 		return crossMember;
-		
 	}
 
- */
+ 
 
 	/**
 	 * Return random chromosome from list of chromosomes
@@ -181,10 +189,10 @@ public class BRKGA {
 	 * @return
 	 */
 	private Chromosome selection(ArrayList<Chromosome> chromosomes) {
-		
 		Random random = new Random();
 		return chromosomes.get(random.nextInt(chromosomes.size()));
 	}
+	
 
 
 	/**
@@ -284,7 +292,38 @@ public class BRKGA {
 		//Sort to return the best solution
 		sort();
 		
-		return current.getChromosomes().get(0).toString();
+		Chromosome bestChromosome = current.getChromosomes().get(0);
+		ArrayList<Route> vehiclePart = bestChromosome.getVehiclePart();
+		
+		if(vehiclePart.isEmpty()){
+			return "Solution is empty";
+		}
+		
+		DecimalFormat df = new DecimalFormat("#.00000");
+		
+		String solution = "The best found solution for BRKGA for " + nodes.size() + " locations: \n";
+		solution+= "Number of routes: " + vehiclePart.size() + ", Fitness: " + df.format(bestChromosome.getFitness()) + "\n";
+		solution += "Arrival time of latest car: " + bestChromosome.getLatestArrivalTime() + "\n";
+		for(int i = 0; i<vehiclePart.size(); i++){
+			solution += "Route nr: " + (i+1) + " covers the following locations: \n";
+			Route route = vehiclePart.get(i);
+			
+			for(Node node: route.getNodesInRoute()){
+				
+				if(node.getId() == 0){
+					continue;
+				}
+				
+				solution += node.getId() + ", ";
+			}
+			
+			solution = solution.substring(0, solution.length()-2);
+			
+			solution += "\n";
+		}
+		
+		return solution;
+
 		
 	}
 }

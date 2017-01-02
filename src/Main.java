@@ -5,6 +5,9 @@ public class Main {
 
 	public static void main(String[] args) {
 		
+		//for calculating the execution time
+		long start = System.currentTimeMillis();;
+		
 		ArrayList<Node> nodes = new ArrayList<>();
 		
 		ArrayList<Integer> minValues = new ArrayList<>();
@@ -61,7 +64,7 @@ public class Main {
 		}
 		
 		
-		int maxGenerations = 5000; //number of max generations to create
+		int maxGenerations = 50000; //number of max generations to create
 		int numberOfGenesInChromosome = nodes.size(); //amount of locations in each chromosome
 		int populationSize = 10; //amount of elements in a population
 		int eliteSize = 3; //amount of elements in elite set
@@ -72,6 +75,10 @@ public class Main {
 		BRKGA brkga = new BRKGA(maxGenerations, numberOfGenesInChromosome, populationSize, eliteSize, mutantSize, eliteProb, nodes);
 
 		System.out.println(brkga.toString());
+		
+		//figure out the execution time
+		long end = System.currentTimeMillis();;
+	    System.out.println("Execution time: " + (end - start) + " ms");
 		
 	}
 

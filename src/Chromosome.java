@@ -29,40 +29,20 @@ public class Chromosome {
 	public void setFitness(double fitness) {
 		this.fitness = fitness;
 	}
-
-	@Override
-	public String toString() {
+	
+	public int getLatestArrivalTime(){
 		
-		if(vehiclePart.isEmpty()){
-			return "Solution is empty";
-		}
+		int latestArrival = 0;
 		
-		String nodeSolution = "";
-		String vehicleSolution = "";
-		
-		//Add vehicle part
-		for(Route route: vehiclePart){
-			
-			//Add node id to solution
-			for(Node node: route.getNodesInRoute()){
-				
-				if(node.getId() == 0){
-					continue;
-				}
-				
-				nodeSolution += node.getId() + "";
+		for(Route route: this.vehiclePart){
+			if(route.getTotTime() > latestArrival){
+				latestArrival = route.getTotTime();
 			}
-			
-			//nodeSolution += nodeSolution +",";
-			
-			//Add route size to solution
-			int sizeMinusStartNode = route.getNodesInRoute().size()-1;
-			vehicleSolution += "" + sizeMinusStartNode;
-			
 		}
 		
-		return nodeSolution + "0" + vehicleSolution;
+		return latestArrival;
 	}
+
 	
 	
 
