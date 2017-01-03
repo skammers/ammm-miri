@@ -79,5 +79,24 @@ public class Solution {
 		
 		return latestArrival;
 	}
+
+	public ArrayList<Node> retrieveAllNodes() {
+		
+		ArrayList<Node> nodes = new ArrayList<>();
+		ArrayList<Node> nodes2 = new ArrayList<>();
+		
+		for(Route route: routes){
+			nodes.addAll(route.getNodesInRoute());
+		}
+		
+		for(Node node: nodes){
+			if(node.getId() != 0){
+				nodes2.add(node);
+			}
+		}
+		
+		return nodes2;
+		
+	}
 	
 }

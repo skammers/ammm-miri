@@ -58,13 +58,13 @@ public class GRASP {
 		
 		int counter = 0;
 		
-		while(counter < 5000){ //todo: fix this
+		while(counter < 10000){ //todo: fix this
 			
 			nodesNotUsed.clear();
 			nodesNotUsed = (ArrayList<Node>) nodes.clone();
 			
 			Solution candidate = GreedyRandomizedConstruction(nodesNotUsed, alpha);
-			candidate = localSearch(candidate);
+			candidate = localSearch(nodes, candidate);
 			
 			int cost = calculateCost(candidate);
 			candidate.setCost(cost);
@@ -91,9 +91,48 @@ public class GRASP {
 		return cost;
 	}
 
-	private Solution localSearch(Solution candidate) {
-		//todo: fix this
-		return candidate;
+	/**
+	 * Search the neighborhood of the candidate solution to find local minima
+	 * @param nodes
+	 * @param candidate
+	 * @return
+	 */
+	private Solution localSearch(ArrayList<Node> nodes, Solution candidate) {
+		
+		Solution bestLocal = new Solution();
+		
+		int counter = 0;
+		
+		//Presume that each neighborhood consists of 10 neighbors
+		while(counter < 10){
+			Solution solution = new Solution();
+			
+			ArrayList<Node> nodesInCandidate = new ArrayList<>();
+			nodesInCandidate.addAll(candidate.retrieveAllNodes());
+			
+			Random r = new Random();
+			int random1 = r.nextInt(nodesInCandidate.size());
+			int random2 = r.nextInt(nodesInCandidate.size());
+
+			//Swap two random nodes
+			Collections.swap(nodesInCandidate, random1, random2);
+			
+			//Add initial node to beginning of list
+			nodesInCandidate.add(0, nodes.get(0));
+
+			
+			//Construct new solution which is in the neighborhood
+			solution = constructSolution(nodesInCandidate);
+			solution.setCost(calculateCost(solution));
+			
+			if(solution.getCost() < bestLocal.getCost()){
+				bestLocal = solution;
+			}
+			
+			counter++;
+		}
+		
+		return bestLocal;
 	}
 
 	@SuppressWarnings("unchecked")
