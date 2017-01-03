@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class main {
+public class Main {
 
 	public static void main(String[] args) {
 		
@@ -63,7 +63,7 @@ public class main {
 			nodes.add(node);
 		}
 		
-		double alpha = 1; //threshold
+		double alpha = 0.1; //threshold
 		
 		GRASP grasp = new GRASP(nodes, alpha);
 		

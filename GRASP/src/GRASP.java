@@ -1,8 +1,8 @@
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
@@ -28,17 +28,43 @@ public class GRASP {
 		
 		ArrayList<Node> nodesNotUsed = (ArrayList<Node>) nodes.clone();
 		
-		bestSolution = constructSolution(nodesNotUsed, alpha);
+		ArrayList<Node> listMinusStart = new ArrayList<>();
+		
+		//copy all nodes except start to randomize them
+		for(Node node: nodesNotUsed){
+			
+			if(node.getId() == 0){
+				continue;
+			}
+			
+			listMinusStart.add(node);
+		}
+		
+		//remove all nodes except start
+		for(Node node: listMinusStart){
+			nodesNotUsed.remove(node);
+		}
+		
+		
+		//Shuffle nodes
+		Collections.shuffle(listMinusStart);
+		
+		//Add all nodes back
+		for(Node node: listMinusStart){
+			nodesNotUsed.add(node);
+		}
+		
+		bestSolution = constructSolution(nodesNotUsed);
 		
 		int counter = 0;
 		
-		while(counter < 500){ //todo: fix this
+		while(counter < 5000){ //todo: fix this
 			
 			nodesNotUsed.clear();
 			nodesNotUsed = (ArrayList<Node>) nodes.clone();
 			
 			Solution candidate = GreedyRandomizedConstruction(nodesNotUsed, alpha);
-			//candidate = localSearch(candidate);
+			candidate = localSearch(candidate);
 			
 			int cost = calculateCost(candidate);
 			candidate.setCost(cost);
@@ -67,9 +93,10 @@ public class GRASP {
 
 	private Solution localSearch(Solution candidate) {
 		//todo: fix this
-		return null;
+		return candidate;
 	}
 
+	@SuppressWarnings("unchecked")
 	private Solution GreedyRandomizedConstruction(ArrayList<Node> nodes, double alpha) {
 		Solution candidate = new Solution();
 		
@@ -81,66 +108,57 @@ public class GRASP {
 		boolean done = false;
 				
 		while(!done){
+			
+			double seed = alpha;
+						
 			HashMap<Integer, Integer> featureCost = new HashMap<>();
 			
-			ArrayList<Integer> usedNodes = new ArrayList<>();
-			
-			for(Node node: candidate.getNodesInSolution()){
-				usedNodes.add(node.getId());
-			}
-			
-			for(Node node: nodes){
-				if(usedNodes.contains(node.getId())){
-					continue;
-				}
-				else{
-					Integer cost = costOfAddingNodeToSolution(candidate, node);
-					featureCost.put(node.getId(), cost);	
-					//System.out.println("Cost for Node " + node.getId() + ": " + cost);
-				}
-				
+			ArrayList<Integer> usedNodes = addNodesToList(candidate);
 
-			}
+			//Update featureCost list with ids and values
+			featureCost = updateFeatureCost(nodes, usedNodes, candidate);
+
 			
+			//initiate RCL list
 			ArrayList<Node> RCL = new ArrayList<>();
 			
-			Integer minCost = 100000;
-			Integer maxCost = 0;
+			int minCost = findMin(featureCost);
+			int maxCost = findMax(featureCost);
 			
-			for(Integer i: featureCost.values()){
-				if(i < minCost){
-					minCost = i;
-				}
-				
-				if(i > maxCost){
-					maxCost = i;
-				}
-				
-			}
-						
-			int keyMin = 10000;
-			for(Integer key: featureCost.keySet()){
-				if(keyMin > key){
-					keyMin = key;
-				}
-			}
+			//Need to clone the featureCost map
+			HashMap<Integer, Integer> fC2 = (HashMap<Integer, Integer>) featureCost.clone();
 			
-			for(int i = keyMin; i< keyMin + featureCost.size(); i++){
-				if(featureCost.get(i) == null){
-					continue;
-				}
+
+			//keep going until all is selected
+			while(!fC2.isEmpty()){
 				
-				//System.out.println("Feature cost: " + featureCost.get(i) + " <= " + " minCost " +  minCost + /*alpha **/  "+ (mincost - maxcost) " + (maxCost - minCost));
+				int keyMin = findMinKey(fC2);
+
 				
-				
-				
-				if(featureCost.get(i) <= minCost + alpha * (maxCost - minCost)){
+				//for all keys in fc2
+				for(int i = keyMin; i< keyMin + fC2.size(); i++){
 					
-					Node nodeToAdd = nodes.get(i);
-					//System.out.println("Added node with id: " + nodeToAdd.getId());
-					RCL.add(nodeToAdd);
+					//skip null values
+					if(fC2.get(i) == null){
+						continue;
+					}
+					
+					//System.out.println("Feature cost: " + (double)fC2.get(i) + " <= " +  (minCost + (seed * (maxCost - minCost))));
+					
+					if((double)fC2.get(i) <= (minCost + (seed * (maxCost - minCost)))){
+						Node nodeToAdd = nodes.get(i);
+						//System.out.println("Added node with id: " + nodeToAdd.getId());
+						RCL.add(nodeToAdd);
+						fC2.remove(i);
+					}
 				}
+				
+				seed = setSeed(seed);
+				
+				
+				//System.out.println("Seed: " + seed);
 			}
+			
 			
 			//Cannot select random one if it is empty
 			if(!featureCost.isEmpty() && !RCL.isEmpty()){
@@ -161,25 +179,119 @@ public class GRASP {
 					routeToEvaluate.add(node);
 				}
 				
-				candidate = constructSolution(routeToEvaluate, alpha);
+				candidate = constructSolution(routeToEvaluate);
 				done = true;
 				
 			}
 			
 		}
 		
-		
 		return candidate;
 	}
 
 
+
+	private double setSeed(double seed) {
+		seed = seed + 0.1;
+		return seed > 1 ? 1 : seed;
+		
+	}
+
+	/**
+	 * find minimum key
+	 * @param featureCost
+	 * @return
+	 */
+	private int findMinKey(HashMap<Integer, Integer> featureCost) {
+		int keyMin = 100000;
+		
+		for(Integer key: featureCost.keySet()){
+			if(keyMin > key){
+				keyMin = key;
+			}
+		}
+		
+		return keyMin;
+	}
+
+	/**
+	 * find max cost
+	 * @param featureCost
+	 * @return
+	 */
+	private int findMax(HashMap<Integer, Integer> featureCost) {
+		
+		int maxCost = 0;
+		
+		//Find min and max cost
+		for(Integer i: featureCost.values()){
+			if(i > maxCost){
+				maxCost = i;
+			}
+		}
+		
+		return maxCost;
+	}
+
+	/**
+	 * find min cost
+	 * @param featureCost
+	 * @return
+	 */
+	private int findMin(HashMap<Integer, Integer> featureCost) {
+		int minCost = 10000000;
+		
+		//Find min and max cost
+		for(Integer i: featureCost.values()){
+			if(i < minCost){
+				minCost = i;
+			}
+		}
+		
+		return minCost;
+	}
+
+	private HashMap<Integer, Integer> updateFeatureCost(ArrayList<Node> nodes, ArrayList<Integer> usedNodes, Solution candidate) {
+		
+		HashMap<Integer, Integer> featureCost = new HashMap<>();
+		
+		for(Node node: nodes){
+			if(usedNodes.contains(node.getId())){
+				continue;
+			}
+			else{
+				Integer cost = costOfAddingNodeToSolution(candidate, node);
+				featureCost.put(node.getId(), cost);	
+				//System.out.println("Cost for Node " + node.getId() + ": " + cost);
+			}
+		}
+		
+		return featureCost;
+		
+	}
+
+	/**
+	 * Add nodes to list
+	 * @param candidate
+	 * @return
+	 */
+	private ArrayList<Integer> addNodesToList(Solution candidate) {
+		
+		ArrayList<Integer> usedNodes = new ArrayList<>();
+		
+		for(Node node: candidate.getNodesInSolution()){
+			usedNodes.add(node.getId());
+		}
+		
+		return usedNodes;
+	}
 
 	/**
 	 * Create solution
 	 * @param nodes 
 	 * @return
 	 */
-	private Solution constructSolution(ArrayList<Node> nodesNotUsed, double alpha) {
+	private Solution constructSolution(ArrayList<Node> nodesNotUsed) {
 		Solution candidate = new Solution();
 
 		//Run until all nodes is used except for start node
@@ -277,7 +389,6 @@ public class GRASP {
 		try {
 			solution += "Arrival time of latest car: " + getArrivalTime(bestSolution.getLatestArrivalTime()) + "\n";
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		for(int i = 0; i<bestSolution.getRoutes().size(); i++){
