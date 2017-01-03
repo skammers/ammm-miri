@@ -18,8 +18,8 @@ public class GRASP {
 	 */
 	public GRASP(ArrayList<Node> nodes, double alpha){
 		
-		graspAlgorithm(nodes, alpha);
 		this.nodes = nodes;
+		graspAlgorithm(nodes, alpha);
 		
 	}
 	
@@ -58,7 +58,7 @@ public class GRASP {
 		
 		int counter = 0;
 		
-		while(counter < 10000){ //todo: fix this
+		while(counter < 5000){ //todo: fix this
 			
 			nodesNotUsed.clear();
 			nodesNotUsed = (ArrayList<Node>) nodes.clone();
@@ -333,6 +333,8 @@ public class GRASP {
 	private Solution constructSolution(ArrayList<Node> nodesNotUsed) {
 		Solution candidate = new Solution();
 
+		
+		
 		//Run until all nodes is used except for start node
 		while(nodesNotUsed.size() -1 != 0){
 
@@ -365,7 +367,9 @@ public class GRASP {
 				
 				//Add waiting time if arrival is to early
 				if(arrivalTime < node.getMinValue()){
-					arrivalTime = arrivalTime + (node.getMinValue()-arrivalTime);
+					int waitingTime = node.getMinValue()-arrivalTime;
+					arrivalTime = arrivalTime + waitingTime;
+					nodeTime = nodeTime + waitingTime;
 				}
 				
 				//if total time for the route + the new node does not go beyond total time possible, it is good
@@ -421,7 +425,6 @@ public class GRASP {
 
 	@Override
 	public String toString() {
-		
 		
 		String solution = "The best found solution for GRASP for " + nodes.size() + " locations: \n";
 		solution+= "Number of routes: " + bestSolution.getRoutes().size() + ", Cost: "  + bestSolution.getCost()+ "\n";

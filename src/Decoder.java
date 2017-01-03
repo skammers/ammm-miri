@@ -118,7 +118,9 @@ public class Decoder {
 				
 				//Add waiting time if arrival is to early
 				if(arrivalTime < node.getMinValue()){
-					arrivalTime = arrivalTime + (node.getMinValue()-arrivalTime);
+					int waitingTime = node.getMinValue()-arrivalTime;
+					arrivalTime = arrivalTime + waitingTime;
+					nodeTime = nodeTime + waitingTime;
 				}
 				
 				//if total time for the route + the new node does not go beyond total time possible, it is good
