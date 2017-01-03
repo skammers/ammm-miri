@@ -58,7 +58,7 @@ public class GRASP {
 		
 		int counter = 0;
 		
-		while(counter < 5000){ //todo: fix this
+		while(counter < 5000){ 
 			
 			nodesNotUsed.clear();
 			nodesNotUsed = (ArrayList<Node>) nodes.clone();
@@ -191,6 +191,7 @@ public class GRASP {
 						fC2.remove(i);
 					}
 				}
+				
 				
 				seed = setSeed(seed);
 				
@@ -336,9 +337,7 @@ public class GRASP {
 		
 		
 		//Run until all nodes is used except for start node
-		while(nodesNotUsed.size() -1 != 0){
-
-			
+		while(nodesNotUsed.size() -1 != 0){			
 			
 			//Make a new route
 			Route route = new Route();
