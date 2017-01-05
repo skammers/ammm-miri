@@ -1,17 +1,24 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Main {
 
 	public static void main(String[] args) {
 		
+		String path = args[0];
+	    // ... 
+	    File CP_file = new File(path);
+	    
+	    
+		
 		//for calculating the execution time
 		long start = System.currentTimeMillis();;
 		
-		int numberOfNodes = 500;
-		
-		Generator generator = new Generator(numberOfNodes);
-		
-		ArrayList<Node> nodes = generator.generate(numberOfNodes);
+		ArrayList<Node> nodes = readFile(CP_file);
 		/*
 		ArrayList<Integer> minValues = new ArrayList<>();
 		ArrayList<Integer> maxValues = new ArrayList<>();
@@ -84,6 +91,68 @@ public class Main {
 		long end = System.currentTimeMillis();;
 	    System.out.println("Execution time: " + (end - start) + " ms");
 		
+	}
+
+	private static ArrayList<Node> readFile(File file) {
+		
+		ArrayList<Node> nodes = new ArrayList<>();
+		
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+		    String line;
+		    while ((line = br.readLine()) != null) {
+		    	Node node = new Node();
+		    	ArrayList<Integer> distances = new ArrayList<>();
+		    	
+		    	
+		    	String[] variables = line.split("Distance:");
+		    	String[] nodeValues = variables[0].split(" ");
+		    	
+		    	int id = Integer.valueOf(nodeValues[0]);
+		    	String timeWindow = nodeValues[1];
+		    	int workValue = Integer.valueOf(nodeValues[2]);
+		    	timeWindow = timeWindow.substring(1, timeWindow.length()-1);
+		    	String[] timeValues = timeWindow.split(",");
+		    	int minValue = Integer.valueOf(timeValues[0]);
+		    	int maxValue = Integer.valueOf(timeValues[1]);
+
+		    	String[] distanceMatrix = variables[1].split(",");
+		    	
+		    	for(String s: distanceMatrix){
+		    		
+		    		if(s.contains("[")){
+		    			s = s.substring(2, s.length());
+		    		}
+		    		
+		    		else if(s.contains("]")){
+		    			s = s.substring(1, s.length()-1);
+		    		}
+		    		else{
+		    			s = s.substring(1, s.length());
+		    		}
+		    		
+		    		distances.add(Integer.valueOf(s));
+		    		
+		    	}
+		    	
+		    	node.setId(id);
+		    	node.setMinValue(minValue);
+		    	node.setMaxValue(maxValue);
+		    	node.setWorkValue(workValue);
+		    	node.setDistances(distances);
+		    	
+		    	nodes.add(node);
+		    	
+		    	
+		    }
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return nodes;
 	}
 
 }
