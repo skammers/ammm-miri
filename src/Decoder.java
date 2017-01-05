@@ -6,10 +6,10 @@ public class Decoder {
 	private int maxMinutesBeforeReturn = 720;
 
 
-	public Population decodeKeys(Population current) {
+	public Population decodeKeys(Population current, int size) {
 		
 		for(Chromosome chromosome: current.getChromosomes()){
-			chromosome.setFitness(calculateFitness(chromosome));
+			chromosome.setFitness(calculateFitness(chromosome, size));
 		}
 		
 		return current;
@@ -17,7 +17,7 @@ public class Decoder {
 	}
 
 
-	private double calculateFitness(Chromosome chromosome) {
+	private double calculateFitness(Chromosome chromosome, int size) {
 		
 		if(chromosome.getVehiclePart() == null){
 			return 0.0;
@@ -36,7 +36,7 @@ public class Decoder {
 		
 		double timeValue = (latestArrivalTime/maxMinutesBeforeReturn);
 		
-		fitness = fitness - (numberOfCars/1000) - (timeValue/10);
+		fitness = fitness - (numberOfCars/size) - (timeValue/size);
 		
 		return fitness;
 	}

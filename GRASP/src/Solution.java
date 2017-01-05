@@ -5,8 +5,17 @@ public class Solution {
 	private ArrayList<Route> routes;
 	private int cost;
 	private ArrayList<Node> nodesInSolution;
+	private double fitness = 0.0;
 
 
+
+	public double getFitness() {
+		return fitness;
+	}
+
+	public void setFitness(double fitness) {
+		this.fitness = fitness;
+	}
 
 	public int getCost() {
 		return cost;
@@ -67,9 +76,9 @@ public class Solution {
 		return totalNodes;
 	}
 
-	public int getLatestArrivalTime(){
+	public double getLatestArrivalTime(){
 		
-		int latestArrival = 0;
+		double latestArrival = 0;
 		
 		for(Route route: this.getRoutes()){
 			if(route.getTotTime() > latestArrival){

@@ -12,13 +12,15 @@ public class GRASP {
 	private final int MAX_MINUTES_FROM_START = 720;
 	private Solution bestSolution;
 	private ArrayList<Node> nodes;
+	private double allowedSolution;
 	
 	/**
 	 * Constructor
 	 */
-	public GRASP(ArrayList<Node> nodes, double alpha){
+	public GRASP(ArrayList<Node> nodes, double alpha, double allowedSolution){
 		
 		this.nodes = nodes;
+		this.allowedSolution = allowedSolution;
 		graspAlgorithm(nodes, alpha);
 		
 	}
@@ -58,7 +60,7 @@ public class GRASP {
 		
 		int counter = 0;
 		
-		while(counter < 5000){ 
+		while(counter < 5000 && bestSolution.getFitness() < allowedSolution){ 
 			
 			nodesNotUsed.clear();
 			nodesNotUsed = (ArrayList<Node>) nodes.clone();
@@ -73,8 +75,22 @@ public class GRASP {
 				bestSolution = candidate;
 			}
 			
+			bestSolution.setFitness(calculateFitness(bestSolution, nodes));
+			
 			counter++;
 		}
+	}
+
+	private double calculateFitness(Solution solution, ArrayList<Node> nodes) {
+		
+		double fitness = 1;
+		
+		double latestArrival = solution.getLatestArrivalTime()/MAX_MINUTES_FROM_START;
+		double numberOfCars = solution.getRoutes().size();
+		
+		fitness = fitness - (numberOfCars/nodes.size()) - (latestArrival/nodes.size());
+		
+		return fitness < 0 ? 0: fitness;
 	}
 
 	private int calculateCost(Solution candidate) {
@@ -426,9 +442,9 @@ public class GRASP {
 	public String toString() {
 		
 		String solution = "The best found solution for GRASP for " + nodes.size() + " locations: \n";
-		solution+= "Number of routes: " + bestSolution.getRoutes().size() + ", Cost: "  + bestSolution.getCost()+ "\n";
+		solution+= "Number of routes: " + bestSolution.getRoutes().size() + ", Cost: "  + bestSolution.getCost()+ ", Fitness: " + bestSolution.getFitness() + "\n";
 		try {
-			solution += "Arrival time of latest car: " + getArrivalTime(bestSolution.getLatestArrivalTime()) + "\n";
+			solution += "Arrival time of latest car: " + getArrivalTime((int) bestSolution.getLatestArrivalTime()) + "\n";
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

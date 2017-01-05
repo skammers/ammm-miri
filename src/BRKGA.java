@@ -16,7 +16,7 @@ public class BRKGA {
 	private int eliteSize; //amount of elements in elite set
 	private int mutantSize; //amount of mutants initialized in each generation
 	private double eliteProb; //probability that a child inherits genes from the elite parent
-	//private double lowestAcceptableStopValue = 0.65; 
+	private double allowedFitness; 
 	
 	private ArrayList<Node> nodes; 
 	
@@ -27,7 +27,7 @@ public class BRKGA {
 	
 	
 	public BRKGA(int maxGenerations, int numberOfGenesInChromosome, int populationSize,
-			int eliteSize, int mutantSize, double eliteProb, ArrayList<Node> nodes) {
+			int eliteSize, int mutantSize, double eliteProb, ArrayList<Node> nodes, double allowedFitness) {
 		super();
 		this.numberOfGenesInChromosome = numberOfGenesInChromosome;
 		this.populationSize = populationSize;
@@ -50,12 +50,12 @@ public class BRKGA {
 				current.getChromosomes().add(chromosome);
 			}
 		}
-		
+		Chromosome best = new Chromosome();
 		
 		do{
 			
 			//Decode each vector of random keys
-			current = decoder.decodeKeys(current);
+			current = decoder.decodeKeys(current, nodes.size());
 			
 			//Sort solutions by their cost
 			sort();
@@ -65,6 +65,8 @@ public class BRKGA {
 			
 			//store old generation
 			storeOldGeneration();
+			
+			best = current.getChromosomes().get(0);
 						
 			//reset current
 			reset(current);
@@ -85,8 +87,7 @@ public class BRKGA {
 			
 		}
 		//Stopping rule satisfied?
-		while(currentGenerationCounter < maxGenerations);		
-		//while(current.getChromosomes().get(0).getFitness() < lowestAcceptableStopValue);
+		while(currentGenerationCounter < maxGenerations && best.getFitness() < allowedFitness);		
 	}	
 
 

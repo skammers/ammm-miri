@@ -1,14 +1,12 @@
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class Main {
 
 	public static void main(String[] args) {
-		int numberOfNodes = 80;
+		int numberOfNodes = 10;
 		
 		Generator generator = new Generator(numberOfNodes);
 		ArrayList<Node> nodes = generator.generate(numberOfNodes);
@@ -53,7 +51,7 @@ public class Main {
 		
 		str+= numberOfLocations + "\n" + minArrival + "\n" + maxArrival + "\n" + workLoad + "\n" + dist;
 		
-		writeToFile(path, str);
+		writeToFile(path, str, nodes.size());
 		
 	}
 
@@ -69,7 +67,7 @@ public class Main {
 		for(Node node: nodes){
 			str += node.getId() + " [" + node.getMinValue() + "," + node.getMaxValue() + "] " + node.getWorkValue() + " Distance: " + node.getDistances()  + "\n"; 
 		}
-		writeToFile(path, str);
+		writeToFile(path, str, nodes.size());
 		
 	}
 
@@ -77,13 +75,13 @@ public class Main {
 	 * Generic write str to path
 	 * @param path
 	 * @param str
+	 * @param size 
 	 */
-	private static void writeToFile(String path, String str) {
+	private static void writeToFile(String path, String str, int size) {
 		BufferedWriter writer = null; 
 		try {
             //create a temporary file
-            String timeLog = new SimpleDateFormat("ddMM_HH:mm:ss").format(Calendar.getInstance().getTime());
-            File logFile = new File(path + timeLog);
+            File logFile = new File(path + size);
 
             // This will output the full path where the file will be written to...
             System.out.println(logFile.getCanonicalPath());

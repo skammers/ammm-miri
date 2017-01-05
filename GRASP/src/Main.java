@@ -76,8 +76,9 @@ public class Main {
 		*/
 		
 		double alpha = 0.1; //threshold
+		double allowedSolution = 0.79;
 		
-		GRASP grasp = new GRASP(nodes, alpha);
+		GRASP grasp = new GRASP(nodes, alpha, allowedSolution);
 		
 		System.out.println(grasp.toString());
 		

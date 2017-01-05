@@ -81,9 +81,10 @@ public class Main {
 		int eliteSize = 3; //amount of elements in elite set
 		int mutantSize = 3; //amount of mutants initialized in each generation
 		double eliteProb = 0.7; //probability that a child inherits genes from the elite parent
+		double allowedFitness = 0.79;
 
 		//Start the simulation
-		BRKGA brkga = new BRKGA(maxGenerations, numberOfGenesInChromosome, populationSize, eliteSize, mutantSize, eliteProb, nodes);
+		BRKGA brkga = new BRKGA(maxGenerations, numberOfGenesInChromosome, populationSize, eliteSize, mutantSize, eliteProb, nodes, allowedFitness);
 
 		System.out.println(brkga.toString());
 		
