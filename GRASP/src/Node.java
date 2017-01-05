@@ -8,6 +8,14 @@ public class Node {
 	private ArrayList<Integer> distances;
 	private int id;
 	
+	public Node(int id, int minValue, int maxValue, int workValue){
+		this.id = id;
+		this.minValue = minValue;
+		this.maxValue = maxValue;
+		this.workValue = workValue;
+		distances = new ArrayList<>();
+	}
+	
 	public int getWorkValue() {
 		return workValue;
 	}
@@ -61,6 +69,15 @@ public class Node {
 		this.maxValue = maxValue;
 		this.workValue = tValue;
 		this.distances = distances;
+	}
+
+	public Node(int id) {
+		this.id = id;
+		this.minValue = 0;
+		this.maxValue = 0;
+		this.workValue = 0;
+		this.distances = new ArrayList<>();
+		
 	}
 
 	@Override

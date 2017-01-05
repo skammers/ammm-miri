@@ -36,7 +36,7 @@ public class Decoder {
 		
 		double timeValue = (latestArrivalTime/maxMinutesBeforeReturn);
 		
-		fitness = fitness - (numberOfCars/10) - (timeValue/10);
+		fitness = fitness - (numberOfCars/1000) - (timeValue/10);
 		
 		return fitness;
 	}
@@ -86,9 +86,12 @@ public class Decoder {
 	public Chromosome genereateChromosome(ArrayList<Node> nodesNotUsed) {
 		Chromosome chromosome = new Chromosome();
 		
+		int counterStuck = 0;
+		
 		//Run until all nodes is used except for start node
 		while(nodesNotUsed.size() -1 != 0){
-
+			
+			int size = nodesNotUsed.size();
 			
 			
 			//Make a new route
@@ -148,6 +151,12 @@ public class Decoder {
 				nodesNotUsed.remove(node);
 			}
 			
+			if(nodesNotUsed.size() == size){
+				counterStuck++;
+			}
+			else{
+				counterStuck = 0;
+			}
 			
 		}
 		

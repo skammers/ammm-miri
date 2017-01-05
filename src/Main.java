@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Main {
 
@@ -8,8 +7,12 @@ public class Main {
 		//for calculating the execution time
 		long start = System.currentTimeMillis();;
 		
-		ArrayList<Node> nodes = new ArrayList<>();
+		int numberOfNodes = 500;
 		
+		Generator generator = new Generator(numberOfNodes);
+		
+		ArrayList<Node> nodes = generator.generate(numberOfNodes);
+		/*
 		ArrayList<Integer> minValues = new ArrayList<>();
 		ArrayList<Integer> maxValues = new ArrayList<>();
 		ArrayList<Integer> tValues = new ArrayList<>();
@@ -62,6 +65,7 @@ public class Main {
 			
 			nodes.add(node);
 		}
+		*/
 		
 		
 		int maxGenerations = 5000; //number of max generations to create

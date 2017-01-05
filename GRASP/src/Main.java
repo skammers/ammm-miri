@@ -8,8 +8,13 @@ public class Main {
 		//for calculating the execution time
 		long start = System.currentTimeMillis();;
 		
-		ArrayList<Node> nodes = new ArrayList<>();
+		int numberOfNodes = 200;
+		Generator generator = new Generator(numberOfNodes);
 		
+		
+		ArrayList<Node> nodes = generator.generate(numberOfNodes);
+		
+		/*
 		ArrayList<Integer> minValues = new ArrayList<>();
 		ArrayList<Integer> maxValues = new ArrayList<>();
 		ArrayList<Integer> tValues = new ArrayList<>();
@@ -62,6 +67,7 @@ public class Main {
 			
 			nodes.add(node);
 		}
+		*/
 		
 		double alpha = 0.1; //threshold
 		

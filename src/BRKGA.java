@@ -81,6 +81,8 @@ public class BRKGA {
 			
 			currentGenerationCounter++;
 			
+			//System.out.println("We are stuck in BRKGA");
+			
 		}
 		//Stopping rule satisfied?
 		while(currentGenerationCounter < maxGenerations);		
@@ -119,6 +121,8 @@ public class BRKGA {
 		
 		
 		while(current.getChromosomes().size() < populationSize){
+			
+			//System.out.println("We are stuck in CROSSOVER");
 			
 			Chromosome eliteMember = selection(previous.getElites());
 			Chromosome nonEliteMember = selection(previous.getNonElites());
