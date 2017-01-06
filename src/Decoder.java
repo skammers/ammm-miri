@@ -85,8 +85,7 @@ public class Decoder {
 
 	public Chromosome genereateChromosome(ArrayList<Node> nodesNotUsed) {
 		Chromosome chromosome = new Chromosome();
-		
-		int counterStuck = 0;
+
 		
 		//Run until all nodes is used except for start node
 		while(nodesNotUsed.size() -1 != 0){
@@ -150,14 +149,6 @@ public class Decoder {
 			for(Node node: nodesUsed){
 				nodesNotUsed.remove(node);
 			}
-			
-			if(nodesNotUsed.size() == size){
-				counterStuck++;
-			}
-			else{
-				counterStuck = 0;
-			}
-			
 		}
 		
 		return chromosome;

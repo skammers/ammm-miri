@@ -76,7 +76,7 @@ public class Main {
 		*/
 		
 		double alpha = 0.1; //threshold
-		double allowedSolution = 0.79;
+		double allowedSolution = 0.81;
 		
 		GRASP grasp = new GRASP(nodes, alpha, allowedSolution);
 		
